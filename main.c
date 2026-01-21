@@ -1,19 +1,34 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "calculator.h"
 
 int main()
 {
-	const char *number = "2 ^ 3";
-	
-	printf("string = %s\n", number);
+	size_t size = 256;
 
-	int out = 0;
+	char *input = malloc(size * sizeof(int));
 
-	double value = parse_power(&number, &out);
-	
-	printf("value = %f\n", value);
-	printf("out = %d\n", out);
+	while (1) {
+		printf(": ");
+
+		if (fgets(input, size, stdin) == NULL) {
+			printf("Input error.\n");
+			return 1;
+		}
+
+		if (*input == 'q' && strlen(input) == 2) {
+			break;
+		}
+
+		int out = 0;
+
+		double value = parse_expression(&input, &out);
+		
+		printf("value = %f\n", value);
+		printf("out = %d\n\n", out);
+	}
 
 	return 0;
 }
