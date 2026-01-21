@@ -3,14 +3,14 @@
 // REMOVE WHEN DONE
 #include <stdio.h>
 
-void skip_whitespace(const char **s)
+void skip_whitespace(char **s)
 {
 	while (**s == ' ') {
 		(*s)++;
 	}
 }
 
-double parse_number(const char **s, int *out)
+double parse_number(char **s, int *out)
 {
 	double number = 0;
 	bool decimal = false;
@@ -36,9 +36,11 @@ double parse_number(const char **s, int *out)
 	return number;
 }
 
-double parse_primary(const char **s, int *out)
+double parse_primary(char **s, int *out)
 {
 	double number = 0;
+
+	skip_whitespace(s);
 	
 	if (**s == '(') {
 		(*s)++;
@@ -59,15 +61,13 @@ double parse_primary(const char **s, int *out)
 	return number;
 }
 
-double parse_power(const char **s, int *out)
+double parse_power(char **s, int *out)
 {
-	skip_whitespace(s);
-
 	double base = parse_primary(s, out);
 
-	skip_whitespace(s);
-
 	double exponent = 0;
+
+	skip_whitespace(s);
 
 	if (**s == '^') {
 		(*s)++;
@@ -82,16 +82,59 @@ double parse_power(const char **s, int *out)
 	return pow(base, exponent);
 }
 
-double parse_term(const char **s, int *out)
+double parse_term(char **s, int *out)
 {
 	double number = parse_power(s, out);
+
+	if (*out != 0) return 0;
+
+	skip_whitespace(s);
+
+	while (**s == '*' || **s == '/') {
+		if (**s == '*') {
+			(*s)++;
+			number *= parse_power(s, out);
+			if (*out != 0) return 0;
+		}
+		else {
+			(*s)++;
+			double rhs = parse_power(s, out);
+			if (rhs == 0) {
+				*out = -1;
+				return 0;
+			}
+			number /= rhs;
+			if (*out != 0) return 0;
+		}
+
+		skip_whitespace(s);
+	}
 
 	return number;
 }
 
-double parse_expression(const char **s, int *out)
+double parse_expression(char **s, int *out)
 {
 	double number = parse_term(s, out);
+
+	if (*out != 0) return 0;
+
+	skip_whitespace(s);
+
+	while (**s == '+' || **s == '-') {
+		if (**s == '+') {
+			(*s)++;
+			number += parse_term(s, out);
+			if (*out != 0) return 0;
+		}
+		else {
+			(*s)++;
+			number -= parse_term(s, out);
+			if (*out != 0) return 0;
+		}
+
+		skip_whitespace(s);
+	}
 
 	return number;
 }
