@@ -1,6 +1,7 @@
 #include "calculator.h"
 
-#include <math.h>
+// REMOVE WHEN DONE
+#include <stdio.h>
 
 void skip_whitespace(const char **s)
 {
@@ -64,16 +65,14 @@ double parse_power(const char **s, int *out)
 
 	double base = parse_primary(s, out);
 
-	printf("base = %f\n", base);
-	
+	skip_whitespace(s);
+
 	double exponent = 0;
 
 	if (**s == '^') {
 		(*s)++;
 		skip_whitespace(s);
 		exponent = parse_power(s, out);
-
-		printf("exponent = %f\n", exponent);
 	} else {
 		return base;
 	}
