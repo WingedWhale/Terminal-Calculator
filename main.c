@@ -18,7 +18,7 @@ int main()
 			return 1;
 		}
 
-		if (*input == 'q' && strlen(input) == 2) {
+		if (*input == 'q') {
 			break;
 		}
 

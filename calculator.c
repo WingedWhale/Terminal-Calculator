@@ -90,21 +90,29 @@ double parse_term(char **s, int *out)
 
 	skip_whitespace(s);
 
-	while (**s == '*' || **s == '/') {
+	while (**s == '*' || **s == '/' || **s == '(') {
 		if (**s == '*') {
 			(*s)++;
+
 			number *= parse_power(s, out);
+
 			if (*out != 0) return 0;
 		}
-		else {
+		else if (**s == '/') {
 			(*s)++;
+
 			double rhs = parse_power(s, out);
+
 			if (rhs == 0) {
 				*out = -1;
 				return 0;
 			}
 			number /= rhs;
+
 			if (*out != 0) return 0;
+		}
+		else if (**s == '(') {
+			number *= parse_power(s, out);
 		}
 
 		skip_whitespace(s);
