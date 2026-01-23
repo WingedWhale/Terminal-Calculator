@@ -16,8 +16,9 @@ double parse_number(char **s, CalcError *out)
 	double number = 0;
 	bool decimal = false;
 	int decimal_level = 10;
+	int added_numbers = 0;
 
-	while ((**s >= '0' && **s <= '9') || **s == '.') {
+	while (is_num(**s) || **s == '.') {
 		if (**s == '.') {
 			if (decimal) {
 				*out = ERR_SYNTAX; // ERROR: duplicate decimal points
@@ -27,14 +28,23 @@ double parse_number(char **s, CalcError *out)
 			(*s)++;
 			continue;
 		}
+
 		if (!decimal) {
 			number = 10 * number + (**s - '0');
+			added_numbers++;
 		} else {
 			number += (double)(**s - '0') / decimal_level;
 			decimal_level *= 10;
+			added_numbers++;
 		}
 		(*s)++;
 	}
+	
+	if (added_numbers == 0) {
+		*out = ERR_SYNTAX; // ERROR: Incorrect decimal form
+		return 0;
+	}
+
 	return number;
 }
 
@@ -175,9 +185,67 @@ double parse_power(char **s, CalcError *out)
 	return pow(base, exponent);
 }
 
+bool is_implicit_separator(char s) {
+	return s == '('
+	    || ((s >= 'a' && s <= 'z') || (s <= 'A' && s >= 'Z'))
+            || (s >= '0' && s <= '9');
+}
+
+bool is_term_separator(char s) {
+	return s == '*' 
+	    || s == '/' 
+	    || is_implicit_separator(s);
+}
+
+bool is_num(char s) {
+	return s >= '0' && s <= '9';
+}
+
+void handle_term_separation(char **s, CalcError *out, double *number, bool *i_checker)
+{	
+	if (**s == '*') {
+		(*s)++;
+
+		*i_checker = is_num(**s);
+
+		*number *= parse_power(s, out);
+	}
+	else if (**s == '/') {
+		(*s)++;
+
+		*i_checker = is_num(**s);
+
+		double rhs = parse_power(s, out);
+
+		if (*out != SUCCESS) {
+			return;
+		}
+
+		if (rhs == 0) {
+			*out = ERR_DIV_ZERO; // ERROR: Divide by zero
+			return;
+		}
+
+		*number /= rhs;
+	}
+	else if (is_implicit_separator(**s)) {
+		// If current and previous are both numbers, Ex: "5 73"
+		if (is_num(**s) && *i_checker) { // ERROR: Improper implicit multiplication
+			*out = ERR_SYNTAX;
+			return;
+		}
+
+		*i_checker = is_num(**s);
+
+		*number *= parse_power(s, out);
+	}
+
+	skip_whitespace(s);
+}
+
 double parse_term(char **s, CalcError *out)
 {
-	bool is_num = **s >= '0' && **s <= '9';
+	bool i_checker = is_num(**s); // Checks for implicit multiplication syntax
 
 	double number = parse_power(s, out);
 	if (*out != SUCCESS) {
@@ -186,59 +254,12 @@ double parse_term(char **s, CalcError *out)
 
 	skip_whitespace(s);
 
-	while (**s == '*' || **s == '/' || **s == '(' 
-			|| ((**s >= 'a' && **s <= 'z') || (**s <= 'A' && **s >= 'Z')) 
-			|| (**s >= '0' && **s <= '9'))
+	while (is_term_separator(**s))
 	{
-		if (**s == '*') {
-			(*s)++;
-
-			is_num = **s >= '0' && **s <= '9';
-
-			number *= parse_power(s, out);
-
-			if (*out != SUCCESS) {
-				return 0;
-			}
-		}
-		else if (**s == '/') {
-			(*s)++;
-
-			is_num = **s >= '0' && **s <= '9';
-
-			double rhs = parse_power(s, out);
-
-			if (*out != SUCCESS) {
-				return 0;
-			}
-
-			if (rhs == 0) {
-				*out = ERR_DIV_ZERO; // ERROR: Divide by zero
-				return 0;
-			}
-			number /= rhs;
-		}
-		else if (**s == '(' || ((**s >= 'a' && **s <= 'z') || (**s <= 'A' && **s >= 'Z')) 
-				|| (**s >= '0' && **s <= '9' && !is_num)) {
-
-			is_num = **s >= '0' && **s <= '9';
-
-			number *= parse_power(s, out);
-			
-			if (*out != SUCCESS) {
-				return 0;
-			}
-		}
-		else if (**s >= '0' && **s <= '9') {
-			*out = ERR_SYNTAX;
-			return 0;
-		}
-
+		handle_term_separation(s, out, &number, &i_checker);
 		if (*out != SUCCESS) {
 			return 0;
 		}
-
-		skip_whitespace(s);
 	}
 
 	return number;
@@ -255,11 +276,13 @@ double parse_expression(char **s, CalcError *out)
 	while (**s == '+' || **s == '-') {
 		if (**s == '+') {
 			(*s)++;
+			skip_whitespace(s);
 			number += parse_term(s, out);
 			if (*out != SUCCESS) return 0;
 		}
 		else {
 			(*s)++;
+			skip_whitespace(s);
 			number -= parse_term(s, out);
 			if (*out != SUCCESS) return 0;
 		}
