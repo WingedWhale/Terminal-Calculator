@@ -1,9 +1,9 @@
-Terminal based calulator.
+### Terminal based calculator
 
 'q' to quit.
 
 
-## Build Instructions ##
+## Build Instructions
 
 
 mkdir build
