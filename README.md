@@ -1,9 +1,9 @@
-Terminal based calulator.
-'q' to quit.
+Terminal based calulator. \n
+'q' to quit. \n
 
 ## Build Instructions ##
 
-mkdir build
-cd build
-cmake ..
-make
+mkdir build \n
+cd build \n
+cmake .. \n
+make \n
