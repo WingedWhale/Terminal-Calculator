@@ -1,4 +1,4 @@
-### Terminal based calculator
+### Terminal based calculator ###
 
 'q' to quit.
 
