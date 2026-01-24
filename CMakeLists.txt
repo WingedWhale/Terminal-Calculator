@@ -1,9 +1,17 @@
-cmake_minimum_required(VERSION 3.28.3)
-project(Terminal-Calculator)
+cmake_minimum_required(VERSION 3.10)
 
-add_executable(${PROJECT_NAME} main.c)
-add_library(calculator calculator.c)
+project(Terminal-Calculator VERSION 1.0)
 
-find_package(math)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED True)
 
-target_link_libraries(${PROJECT_NAME} calculator math)
+set(TARGET calculator)
+
+add_executable(${TARGET}
+	src/main.c
+	src/calculator.c
+)
+
+target_include_directories(${TARGET} PRIVATE src)
+
+target_link_libraries(${TARGET} m)
