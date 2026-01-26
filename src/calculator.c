@@ -70,7 +70,7 @@ double parse_primary(char **s, CalcError *out)
 		}
 
 		if (**s != ')') {
-			*out = ERR_PAREN; // ERROR: Missing right parenthese
+			*out = ERR_PAREN; // ERROR: Missing right parenthesis
 			return 0;
 		} else {
 			(*s)++;
@@ -112,6 +112,8 @@ double parse_primary(char **s, CalcError *out)
 			number = floor(process_function_body(s, out));
 		} else if (strcmp(str, "ceil") == 0) {
 			number = ceil(process_function_body(s, out));
+		} else if (strcmp(str, "sqrt") == 0) {
+			number = sqrt(process_function_body(s, out));
 		} else {
 			*out = ERR_UNKNOWN; // ERROR: Function/Variable not found
 			return 0;
@@ -134,7 +136,7 @@ double process_function_body(char **s, CalcError *out)
 	skip_whitespace(s);
 
 	if (**s != '(') {
-		*out = ERR_SYNTAX; // ERROR: Missing left function parenthese
+		*out = ERR_SYNTAX; // ERROR: Missing left function parenthesis
 		return 0;
 	}
 
@@ -147,7 +149,7 @@ double process_function_body(char **s, CalcError *out)
 	}
 
 	if (**s != ')') {
-		*out = ERR_PAREN; // ERROR: Missing right function parenthese
+		*out = ERR_PAREN; // ERROR: Missing right function parenthesis
 		return 0;
 	}
 
@@ -193,7 +195,7 @@ bool is_implicit_separator(char s) {
 
 bool is_term_separator(char s) {
 	return s == '*' 
-	    || s == '/' 
+	    || s == '/'
 	    || is_implicit_separator(s);
 }
 

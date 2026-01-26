@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(Terminal-Calculator VERSION 1.0)
+project(Terminal-Calculator)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
