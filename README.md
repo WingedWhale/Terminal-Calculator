@@ -1,5 +1,6 @@
 # Terminal based calculator
 
+![Project Screenshot](assets/example.png)
 
 ## Instructions
 : \<expression\> \<ENTER\>
