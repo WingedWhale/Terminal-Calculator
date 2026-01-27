@@ -53,13 +53,6 @@ double parse_primary(char **s, CalcError *out)
 	double number = 0;
 
 	skip_whitespace(s);
-
-	double unary = 1.0;
-
-	if (**s == '-') {
-		unary = -1.0;
-		(*s)++;
-	}
 	
 	if (**s == '(') {
 		(*s)++;
@@ -128,7 +121,7 @@ double parse_primary(char **s, CalcError *out)
 		return 0;
 	}
 
-	return number * unary;
+	return number;
 }
 
 double process_function_body(char **s, CalcError *out)
@@ -160,6 +153,15 @@ double process_function_body(char **s, CalcError *out)
 
 double parse_power(char **s, CalcError *out)
 {
+	int sign = 1;
+
+	if (**s == '-') {
+		sign = -1;
+		(*s)++;
+	} else if (**s == '+') {
+		(*s)++;
+	}
+
 	double base = parse_primary(s, out);
 
 	if (*out != SUCCESS) {
@@ -179,12 +181,12 @@ double parse_power(char **s, CalcError *out)
 			return 0;
 		}
 	} else {
-		return base;
+		return sign * base;
 	}
 
 	if (*out != 0) return 0;
 
-	return pow(base, exponent);
+	return sign * pow(base, exponent);
 }
 
 bool is_implicit_separator(char s) {
