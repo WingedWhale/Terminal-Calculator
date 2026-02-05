@@ -29,7 +29,7 @@ int main()
 
 		switch (out) {
 			case SUCCESS:
-				printf("%f\n\n", value);
+				printf("%g\n\n", value);
 				break;
 			case ERR_DIV_ZERO:
 				printf("ERROR: Cannot divide by zero.\n");

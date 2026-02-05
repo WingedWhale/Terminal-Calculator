@@ -1,8 +1,38 @@
 #include "calculator.h"
 
-#ifndef M_PI
-	#define M_PI 3.1415926535897932384626
-#endif
+static Variable variables[MAX_VARIABLES];
+static int variable_count = 0;
+
+void set_variable(const char *name, double value)
+{
+	for (int i = 0; i < variable_count; i++) {
+		if (strcmp(variables[i].name, name) == 0) {
+			variables[i].value = value;
+			return;
+		}
+	}
+	if (variable_count < MAX_VARIABLES) {
+		strncpy(variables[variable_count].name, name, MAX_VAR_NAME - 1);
+		variables[variable_count].name[MAX_VAR_NAME - 1] = '\0';
+		variables[variable_count].value = value;
+		variable_count++;
+	}
+}
+
+void clear_variables(void)
+{
+	variable_count = 0;
+}
+
+static double *lookup_variable(const char *name)
+{
+	for (int i = 0; i < variable_count; i++) {
+		if (strcmp(variables[i].name, name) == 0) {
+			return &variables[i].value;
+		}
+	}
+	return NULL;
+}
 
 void skip_whitespace(char **s)
 {
@@ -108,8 +138,12 @@ double parse_primary(char **s, CalcError *out)
 		} else if (strcmp(str, "sqrt") == 0) {
 			number = sqrt(process_function_body(s, out));
 		} else {
-			*out = ERR_UNKNOWN; // ERROR: Function/Variable not found
-			return 0;
+			double *val = lookup_variable(str);
+			if (val == NULL) {
+				*out = ERR_UNKNOWN; // ERROR: Function/Variable not found
+				return 0;
+			}
+			number = *val;
 		}
 
 		if (*out != SUCCESS) {
@@ -153,13 +187,12 @@ double process_function_body(char **s, CalcError *out)
 
 double parse_power(char **s, CalcError *out)
 {
-	int sign = 1;
-
 	if (**s == '-') {
-		sign = -1;
 		(*s)++;
+		return -1 * parse_power(s, out);
 	} else if (**s == '+') {
 		(*s)++;
+		return parse_power(s, out);
 	}
 
 	double base = parse_primary(s, out);
@@ -181,12 +214,12 @@ double parse_power(char **s, CalcError *out)
 			return 0;
 		}
 	} else {
-		return sign * base;
+		return base;
 	}
 
 	if (*out != 0) return 0;
 
-	return sign * pow(base, exponent);
+	return pow(base, exponent);
 }
 
 bool is_implicit_separator(char s) {
