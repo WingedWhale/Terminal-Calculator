@@ -32,6 +32,7 @@ typedef enum {
 
 double parse_number(char **s, CalcError *out);
 double parse_primary(char**s, CalcError *out);
+double log_b(double val, double base);
 double process_function_body(char **s, CalcError *out);
 double parse_power(char**s, CalcError *out);
 bool is_num(char s);

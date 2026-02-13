@@ -137,6 +137,17 @@ double parse_primary(char **s, CalcError *out)
 			number = ceil(process_function_body(s, out));
 		} else if (strcmp(str, "sqrt") == 0) {
 			number = sqrt(process_function_body(s, out));
+		} else if (strcmp(str, "ln") == 0) {
+			number = log(process_function_body(s, out));
+		} else if (strcmp(str, "log") == 0) {
+			if (**s != '_') {
+				number = log_b(process_function_body(s, out), 10);
+			} else {
+				(*s)++;
+				double base = parse_primary(s, out);
+
+				number = log_b(process_function_body(s, out), base);
+			}
 		} else {
 			double *val = lookup_variable(str);
 			if (val == NULL) {
@@ -156,6 +167,10 @@ double parse_primary(char **s, CalcError *out)
 	}
 
 	return number;
+}
+
+double log_b(double val, double base) {
+	return log(val) / log(base);
 }
 
 double process_function_body(char **s, CalcError *out)
