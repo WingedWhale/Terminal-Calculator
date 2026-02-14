@@ -260,12 +260,16 @@ void handle_term_separation(char **s, CalcError *out, double *number, bool *i_ch
 
 		*i_checker = is_num(**s);
 
+		skip_whitespace(s);
+
 		*number *= parse_power(s, out);
 	}
 	else if (**s == '/') {
 		(*s)++;
 
 		*i_checker = is_num(**s);
+
+		skip_whitespace(s);
 
 		double rhs = parse_power(s, out);
 
@@ -288,6 +292,8 @@ void handle_term_separation(char **s, CalcError *out, double *number, bool *i_ch
 		}
 
 		*i_checker = is_num(**s);
+
+		skip_whitespace(s);
 
 		*number *= parse_power(s, out);
 	}
