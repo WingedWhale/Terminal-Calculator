@@ -12,8 +12,8 @@ void set_variable(const char *name, double value)
 		}
 	}
 	if (variable_count < MAX_VARIABLES) {
-		strncpy(variables[variable_count].name, name, MAX_VAR_NAME - 1);
-		variables[variable_count].name[MAX_VAR_NAME - 1] = '\0';
+		strncpy(variables[variable_count].name, name, MAX_VAR_NAME);
+		variables[variable_count].name[MAX_VAR_NAME] = '\0';
 		variables[variable_count].value = value;
 		variable_count++;
 	}
@@ -104,18 +104,32 @@ double parse_primary(char **s, CalcError *out)
 		if (*out != SUCCESS) {
 			return 0;
 		}
-	} else if ((**s >= 'a' && **s <= 'z') || (**s >= 'A' && **s <= 'Z')) {
+	} else if ((**s >= 'a' && **s <= 'z') || (**s >= 'A' && **s <= 'Z') || **s == '_') {
 		char str[64];
 		size_t i = 0;
-		while ((**s >= 'a' && **s <= 'z') || (**s >= 'A' && **s <= 'Z')) {
+		while ((**s >= 'a' && **s <= 'z') || (**s >= 'A' && **s <= 'Z') || **s == '_') {
 			str[i] = tolower(**s);
 			i++;
 			(*s)++;
 		}
 
 		str[i] = '\0';
+		
+		skip_whitespace(s);
 
-		/****/ if (strcmp(str, "pi") == 0) {
+		if (**s == '=') {
+			if (strcmp(str, "pi") == 0 || strcmp(str, "e") == 0) {
+				*out = ERR_ASSIGN; // ERROR: trying to assign value to "pi" or "e"
+				return 0;
+			}
+
+			(*s)++;
+
+			number = parse_expression(s, out);
+
+			set_variable(str, number);
+
+		} else if (strcmp(str, "pi") == 0) {
 			number = M_PI;
 		} else if (strcmp(str, "e") == 0) {
 			number = M_E;

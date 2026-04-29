@@ -27,7 +27,8 @@ typedef enum {
 	ERR_DIV_ZERO = 1,
 	ERR_SYNTAX = 2,
 	ERR_PAREN = 3,
-	ERR_UNKNOWN = 4
+	ERR_UNKNOWN = 4,
+	ERR_ASSIGN = 5
 } CalcError;
 
 double parse_number(char **s, CalcError *out);

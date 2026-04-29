@@ -43,6 +43,9 @@ int main()
 			case ERR_UNKNOWN:
 				printf("ERROR: Unknown symbol.\n");
 				break;
+			case ERR_ASSIGN:
+				printf("ERROR: Cannot assign to \'pi\' or \'e\'\n");
+				break;
 		}
 	}
 
