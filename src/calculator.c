@@ -104,10 +104,10 @@ double parse_primary(char **s, CalcError *out)
 		if (*out != SUCCESS) {
 			return 0;
 		}
-	} else if ((**s >= 'a' && **s <= 'z') || (**s >= 'A' && **s <= 'Z') || **s == '_') {
+	} else if ((**s >= 'a' && **s <= 'z') || (**s >= 'A' && **s <= 'Z')) {
 		char str[64];
 		size_t i = 0;
-		while ((**s >= 'a' && **s <= 'z') || (**s >= 'A' && **s <= 'Z') || **s == '_') {
+		while ((**s >= 'a' && **s <= 'z') || (**s >= 'A' && **s <= 'Z')) {
 			str[i] = tolower(**s);
 			i++;
 			(*s)++;
