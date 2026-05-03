@@ -35,5 +35,7 @@ make
 | `log_<base>` | log_2(16) -> 4 |
 ## Custom Variables
 Custom variables can be made with the following format:
-<variable_name> = <value>
+
+\<variable_name\> = \<value\>
+
 Note: Variable names cannot include numbers or special characters, only letters
